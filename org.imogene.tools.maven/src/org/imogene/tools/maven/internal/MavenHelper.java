@@ -43,8 +43,7 @@ public class MavenHelper {
 	public MavenHelper(File pomFile) {
 		this.pomFile = pomFile;
 		repositorySystem = MavenUtils.newRepositorySystem();
-		repositorySystemSession = MavenUtils
-				.newRepositorySystemSession(repositorySystem);
+		repositorySystemSession = MavenUtils.newRepositorySystemSession(repositorySystem);
 
 		PlexusContainer plexusContainer;
 		try {
@@ -62,8 +61,7 @@ public class MavenHelper {
 		request.setRepositorySession(repositorySystemSession);
 		request.setProcessPlugins(false);
 		request.setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0);
-		localRepositoryBaseDir = repositorySystemSession.getLocalRepository()
-				.getBasedir();
+		localRepositoryBaseDir = repositorySystemSession.getLocalRepository().getBasedir();
 	}
 
 	public MavenProject buildMavenProject() throws ProjectBuildingException {
@@ -80,11 +78,10 @@ public class MavenHelper {
 				e.printStackTrace();
 			}
 		}
-		if (result != null) {			
-			DependencyNode node = result.getDependencyResolutionResult()
-					.getDependencyGraph();			
-			addJarsToList(node, jars);	
-			//displayDependencies(node);
+		if (result != null) {
+			DependencyNode node = result.getDependencyResolutionResult().getDependencyGraph();
+			addJarsToList(node, jars);
+			// displayDependencies(node);
 		}
 		return jars;
 	}
@@ -98,45 +95,42 @@ public class MavenHelper {
 		return files;
 	}
 
-	private void buildProjectWithDependencies(boolean resolveDependencies)
-			throws ProjectBuildingException {
+	private void buildProjectWithDependencies(boolean resolveDependencies) throws ProjectBuildingException {
 
 		request.setResolveDependencies(resolveDependencies);
 		request.setRepositoryMerging(RepositoryMerging.REQUEST_DOMINANT);
-		result = projectBuilder.build(pomFile, request);			
+		result = projectBuilder.build(pomFile, request);
 		handleProblem(result);
 	}
-	
-	private void handleProblem(ProjectBuildingResult result){
+
+	private void handleProblem(ProjectBuildingResult result) {
 		List<ModelProblem> problems = result.getProblems();
-		for(ModelProblem mp : problems){
+		for (ModelProblem mp : problems) {
 			LogUtils.logError(mp.getMessage(), mp.getException());
 		}
 		DependencyResolutionResult depRes = result.getDependencyResolutionResult();
 		List<Dependency> allDeps = depRes.getDependencies();
 		List<Dependency> resolvedDeps = depRes.getResolvedDependencies();
 		List<Dependency> unresolvedDeps = depRes.getUnresolvedDependencies();
-		
+
 		StringBuilder builder = new StringBuilder();
 		builder.append("Dependencies count: ").append(allDeps.size());
 		builder.append(" -  resolved: ").append(resolvedDeps.size());
 		builder.append(" -  unresolved: ").append(unresolvedDeps.size());
 		LogUtils.logInfo(builder.toString());
-		for(Dependency d : unresolvedDeps){
-			LogUtils.logError("Unresolved dependency : "+d.getArtifact());
+		for (Dependency d : unresolvedDeps) {
+			LogUtils.logError("Unresolved dependency : " + d.getArtifact());
 		}
-		
-		
+
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void displayDependencies(DependencyNode node) {
 
 		if (node.getDependency() != null) {
 			Artifact a = node.getDependency().getArtifact();
-			if (a != null){
-				LogUtils.logInfo(MavenUtils.getJarPath(a,
-						localRepositoryBaseDir.getAbsolutePath()));
+			if (a != null) {
+				LogUtils.logInfo(MavenUtils.getJarPath(a, localRepositoryBaseDir.getAbsolutePath()));
 			}
 		}
 		for (DependencyNode n : node.getChildren())
@@ -144,14 +138,16 @@ public class MavenHelper {
 	}
 
 	private void addJarsToList(DependencyNode node, List<String> jars) {
-		if (node.getDependency() != null) {
-			Artifact a = node.getDependency().getArtifact();
-			if (a != null)
-				jars.add(MavenUtils.getJarPath(a,
-						localRepositoryBaseDir.getAbsolutePath()));
+		Dependency dep = node.getDependency();
+		if (dep != null && !"provided".equals(dep.getScope())) {
+			Artifact a = dep.getArtifact();
+			if (a != null) {
+				jars.add(MavenUtils.getJarPath(a, localRepositoryBaseDir.getAbsolutePath()));
+			}
 		}
-		for (DependencyNode n : node.getChildren())
+		for (DependencyNode n : node.getChildren()) {
 			addJarsToList(n, jars);
+		}
 	}
 
 }
