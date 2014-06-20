@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GWT Tools
+Bundle-SymbolicName: org.imogene.tools.gwt;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.imogene.tools.gwt.GWTToolsPlugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.jdt.launching,
+ org.eclipse.jdt.core,
+ org.eclipse.debug.core,
+ com.google.gwt.eclipse.core,
+ org.eclipse.ui.ide,
+ org.eclipse.jdt.ui,
+ org.eclipse.ui.forms
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

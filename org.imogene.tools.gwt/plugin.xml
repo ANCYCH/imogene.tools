@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="org.imogene.tools.gwt.superDevModeContribution"
+            objectClass="org.eclipse.core.resources.IProject">
+         <action
+               class="org.imogene.tools.gwt.actions.SDMLaunchConfigurationAction"
+               id="org.imogene.tools.gwt.actions.addSdmLaunchConfiguration"
+               label="Add SuperDevMode launch configuration">
+         </action>
+         <filter
+               name="projectNature"
+               value="com.google.gwt.eclipse.core.gwtNature">
+         </filter>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.imogene.tools.gwt.actions.SDMLaunchConfigurationHandler"
+            id="org.imogene.tools.gwt.addSdmLaunchConfiguration"
+            name="Add SuperDevMode Launch configuration">
+      </command>
+   </extension>
+
+</plugin>
