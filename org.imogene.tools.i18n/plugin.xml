@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="true"
+            id="org.imogene.tools.i18n.contribution3"
+            objectClass="org.eclipse.core.resources.IContainer">
+         <menu
+               id="org.imogene.tools.i18n.menu3"
+               label="Import translations"
+               path="additions">
+            <separator
+                  name="group3">
+            </separator>
+         </menu>
+         <action
+               class="org.imogene.tools.i18n.popup.actions.SpreadsheetToPropertiesAction"
+               enablesFor="1"
+               id="org.imogene.tools.i18n.import"
+               label="Import from spreadsheet"
+               menubarPath="org.imogene.tools.i18n.menu3/group3">
+         </action>
+      </objectContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="org.imogene.tools.i18n.action.ExportHandler"
+            id="org.imogene.tools.i18n.export"
+            name="ExportCommand">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="true"
+            locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+         <menu
+               label="Export properties">
+            <command
+                  commandId="org.imogene.tools.i18n.export"
+                  label="To spreadsheet..."
+                  style="push">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <count
+                           value="1">
+                     </count>
+                     <iterate
+                           ifEmpty="false"
+                           operator="and">
+                        <instanceof
+                              value="org.eclipse.core.resources.IFile">
+                        </instanceof>
+                        <adapt
+                              type="org.eclipse.core.resources.IResource">
+                           <or>
+                              <test
+                                    property="org.eclipse.core.resources.name"
+                                    value="*.xml">
+                              </test>
+                              <test
+                                    property="org.eclipse.core.resources.name"
+                                    value="*.properties">
+                              </test>
+                           </or>
+                        </adapt>
+                     </iterate>
+                  </with>
+               </visibleWhen>
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+
+</plugin>

@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Translations Properties Tools
+Bundle-SymbolicName: org.imogene.tools.i18n;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: org.imogene.tools.i18n.Activator
+Bundle-Vendor: Medes-IMPS
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.apache.xerces
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib-ext/odfdom-java-0.8.7.jar,
+ lib-ext/simple-odf-0.6.6.jar,
+ .
