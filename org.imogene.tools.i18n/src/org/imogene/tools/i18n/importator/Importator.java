@@ -2,18 +2,21 @@ package org.imogene.tools.i18n.importator;
 
 import java.io.File;
 
-import org.eclipse.core.runtime.IPath;
-import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Table;
 
 public interface Importator {
 
-	/* handle the specified sheet */
-	public void importProperties(File parent, Table sheet, String fileName);
+	public static final int DEFAULT_START_ROW = 0;
+	public static final int DEFAULT_VALUE_INDEX = 1;
 
-	/* handle the specified sheet */
+	/**
+	 * Handle the specified sheet
+	 * @param parent
+	 * @param sheet
+	 * @param fileName
+	 * @param startRow
+	 * @param valueColumn
+	 */
 	public void importProperties(File parent, Table sheet, String fileName, int startRow, int valueColumn);
 
-	/* handle all the document */
-	public void importProperties(IPath path, SpreadsheetDocument docuemnt);
 }

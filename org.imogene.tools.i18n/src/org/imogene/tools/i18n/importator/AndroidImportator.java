@@ -14,21 +14,12 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.eclipse.core.runtime.IPath;
-import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Cell;
 import org.odftoolkit.simple.table.Table;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class AndroidImportator implements Importator {
-
-	private static int DEFAULT_START_ROW = 3;
-	private static int DEFAULT_VALUE_INDEX = 2;
-
-	public void importProperties(File parent, Table sheet, String fileName) {
-		importProperties(parent, sheet, fileName, DEFAULT_START_ROW, DEFAULT_VALUE_INDEX);
-	}
 
 	@Override
 	public void importProperties(File parent, Table sheet, String fileName, int startRow, int valueColumn) {
@@ -43,11 +34,6 @@ public class AndroidImportator implements Importator {
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public void importProperties(IPath path, SpreadsheetDocument document) {
-		// TODO Auto-generated method stub
 	}
 
 	/**

@@ -13,11 +13,11 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.imogene.tools.i18n.wdgets.EnhancedComposite;
 
 public class ExportPropertiesWizardPage extends WizardPage {
 
@@ -177,21 +177,6 @@ public class ExportPropertiesWizardPage extends WizardPage {
 
 	public String getPath() {
 		return fileName.getText();
-	}
-
-	private static class EnhancedComposite extends Composite {
-
-		public EnhancedComposite(final Composite parent, final int style) {
-			super(parent, style);
-		}
-
-		@Override
-		public void setEnabled(boolean enabled) {
-			super.setEnabled(enabled);
-			for (Control child : getChildren()) {
-				child.setEnabled(enabled);
-			}
-		}
 	}
 
 }
