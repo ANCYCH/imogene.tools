@@ -64,7 +64,7 @@ public class AndroidImportator implements Importator {
 	}
 
 	private String cleanString(String value) {
-		String cleaned = value.replace("'", "\\'");
+		String cleaned = value.replace("'", "\'");
 		if (cleaned.startsWith("\"")) {
 			cleaned = cleaned.substring(1);
 		}
