@@ -6,7 +6,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.imogene.tools.i18n.extractor.Extractor;
-import org.imogene.tools.i18n.jobs.ExtractionJob;
+import org.imogene.tools.i18n.jobs.ExportJob;
 
 public class ExportPropertiesWizard extends Wizard {
 
@@ -33,7 +33,7 @@ public class ExportPropertiesWizard extends Wizard {
 		boolean useDefaultSheetName = defaultPage.useDefaultSheetName();
 		String sheetName = useDefaultSheetName ? selectedFile.getName() : defaultPage.getSheetName();
 
-		ExtractionJob job = new ExtractionJob(selectedFile, file, sheetName, extractor);
+		ExportJob job = new ExportJob(selectedFile, file, sheetName, extractor);
 		job.setUser(true);
 		job.schedule();
 		return true;

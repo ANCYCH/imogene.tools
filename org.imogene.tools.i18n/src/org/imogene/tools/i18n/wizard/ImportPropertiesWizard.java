@@ -1,13 +1,21 @@
 package org.imogene.tools.i18n.wizard;
 
+import java.io.File;
+
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.imogene.tools.i18n.importator.AndroidImportator;
 import org.imogene.tools.i18n.importator.Importator;
 import org.imogene.tools.i18n.importator.PropertiesImportator;
-import org.imogene.tools.i18n.jobs.ImportationJob;
+import org.imogene.tools.i18n.jobs.ImportJob;
 import org.odftoolkit.simple.SpreadsheetDocument;
 import org.odftoolkit.simple.table.Table;
 
@@ -25,36 +33,39 @@ public class ImportPropertiesWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
-		int type = defaultPage.getType();
-		Importator operator = null;
-		switch (type) {
-		case ImportPropertiesWizardPage.ANDROID_FORMAT:
-			operator = new AndroidImportator();
-			break;
-		case ImportPropertiesWizardPage.PROPERTIES_FORMAT:
-			operator = new PropertiesImportator();
-			break;
+		final Importator operator = getImportator();
+		if (operator == null) {
+			MessageDialog.openWarning(getShell(), "Warning", "Format not supported");
+			return true;
 		}
-		if (operator != null) {
-			IContainer selection = (IContainer) structuredSelection.getFirstElement();
+		IContainer selection = (IContainer) structuredSelection.getFirstElement();
+		ImportJob job = new ImportJob(selection, defaultPage.getFileName(), operator);
+		job.setUser(true);
+		job.schedule();
+		return true;
+	}
+
+	private Importator getImportator() {
+		switch (defaultPage.getType()) {
+		case ImportPropertiesWizardPage.ANDROID_FORMAT:
 			try {
-				Table table = getTable(defaultPage.getSheetName(), defaultPage.getSourceName());
-				ImportationJob job;
+				AndroidImportator importator = new AndroidImportator();
+				importator
+						.setArray(defaultPage.getAndroidFormat() == ImportPropertiesWizardPage.ANDROID_STRING_ARRAY_FORMAT);
+				importator.setSheet(getTable(defaultPage.getSheetName(), defaultPage.getSourceName()));
 				if (defaultPage.hasDefaultValues()) {
-					job = new ImportationJob(selection, table, defaultPage.getFileName(), operator,
-							defaultPage.getStartingRow(), defaultPage.getValueColumn());
-				} else {
-					job = new ImportationJob(selection, table, defaultPage.getFileName(), operator);
+					importator.setStartingRow(defaultPage.getStartingRow());
+					importator.setValueColumn(defaultPage.getValueColumn());
 				}
-				job.setUser(true);
-				job.schedule();
+				return importator;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		} else {
-			MessageDialog.openWarning(getShell(), "Warning", "Format not supported: " + type);
+			return null;
+		case ImportPropertiesWizardPage.PROPERTIES_FORMAT:
+			return new PropertiesImportator();
 		}
-		return true;
+		return null;
 	}
 
 	public Table getTable(String tableName, String documentPath) throws Exception {

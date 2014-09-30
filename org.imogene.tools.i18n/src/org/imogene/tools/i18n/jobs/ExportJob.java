@@ -11,7 +11,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.imogene.tools.i18n.extractor.Extractor;
 import org.imogene.tools.i18n.utils.SpreadsheetHelper;
 
-public class ExtractionJob extends Job {
+public class ExportJob extends Job {
 
 	private static final String NAME = "Extraction task";
 
@@ -20,7 +20,7 @@ public class ExtractionJob extends Job {
 	private final String sheetName;
 	private final Extractor extractor;
 
-	public ExtractionJob(IFile selectedFile, File destinationFile, String sheetName, Extractor extractor) {
+	public ExportJob(IFile selectedFile, File destinationFile, String sheetName, Extractor extractor) {
 		super(NAME);
 		this.selectedFile = selectedFile;
 		this.destinationFile = destinationFile;

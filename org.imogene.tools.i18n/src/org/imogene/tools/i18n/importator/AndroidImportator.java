@@ -1,6 +1,9 @@
 package org.imogene.tools.i18n.importator;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -21,16 +24,42 @@ import org.w3c.dom.Element;
 
 public class AndroidImportator implements Importator {
 
+	private static final String REGEX = "(.*)(-\\d+)";
+	private static final Pattern PATTERN = Pattern.compile(REGEX);
+
+	private final HashMap<String, Element> elementsMap = new HashMap<String, Element>();
+
+	private Table sheet;
+	private int startingRow = Importator.DEFAULT_STARTING_ROW;
+	private int valueColumn = Importator.DEFAULT_VALUE_COLUMN;
+	private boolean array;
+
+	public void setSheet(Table sheet) {
+		this.sheet = sheet;
+	}
+
+	public void setStartingRow(int startingRow) {
+		this.startingRow = startingRow;
+	}
+
+	public void setValueColumn(int valueColumn) {
+		this.valueColumn = valueColumn;
+	}
+
+	public void setArray(boolean array) {
+		this.array = array;
+	}
+
 	@Override
-	public void importProperties(File parent, Table sheet, String fileName, int startRow, int valueColumn) {
+	public void importProperties(File destinationFile) {
 		try {
 			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			/* create a ROOT element */
 			Element root = dom.createElement("resources");
 			dom.appendChild(root);
 			/* create the DOM */
-			parseTable(dom, root, sheet, startRow, valueColumn);
-			writeDomToFile(new File(parent, fileName), dom);
+			parseTable(dom, root);
+			writeDomToFile(destinationFile, dom);
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -43,20 +72,38 @@ public class AndroidImportator implements Importator {
 	 * @param rootthe root element
 	 * @param sheet the spreadsheet
 	 */
-	private void parseTable(Document dom, Element root, Table sheet, int startRow, int valueColumn) {
+	private void parseTable(Document dom, Element root) {
+		elementsMap.clear();
+		int currentRow = startingRow;
 		boolean stop = false;
 		while (!stop) {
-			Cell keyCell = sheet.getCellByPosition(0, startRow);
-			Cell valueCell = sheet.getCellByPosition(valueColumn, startRow);
+			Cell keyCell = sheet.getCellByPosition(0, currentRow);
+			Cell valueCell = sheet.getCellByPosition(valueColumn, currentRow);
 			String key = keyCell.getStringValue();
 			String value = cleanString(valueCell.getStringValue());
 			if (key != null && !key.equals("")) {
-				/* xml */
-				Element tag = dom.createElement("string");
-				tag.setAttribute("name", key);
-				tag.appendChild(dom.createTextNode(value));
-				root.appendChild(tag);
-				startRow++;
+				if (array) {
+					Matcher m = PATTERN.matcher(key);
+					if (m.find()) {
+						String arrayKey = m.group(1);
+						Element tag = elementsMap.get(arrayKey);
+						if (tag == null) {
+							tag = dom.createElement("string-array");
+							tag.setAttribute("name", arrayKey);
+							root.appendChild(tag);
+							elementsMap.put(arrayKey, tag);
+						}
+						Element item = dom.createElement("item");
+						item.appendChild(dom.createTextNode(value));
+						tag.appendChild(item);
+					}
+				} else {
+					Element tag = dom.createElement("string");
+					tag.setAttribute("name", key);
+					tag.appendChild(dom.createTextNode(value));
+					root.appendChild(tag);
+				}
+				currentRow++;
 			} else {
 				stop = true;
 			}

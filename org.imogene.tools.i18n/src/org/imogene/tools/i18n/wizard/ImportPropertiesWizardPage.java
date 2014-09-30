@@ -40,7 +40,7 @@ public class ImportPropertiesWizardPage extends WizardPage {
 
 	public static final int ANDROID_STRING_FORMAT = 1;
 
-	public static final int ANDROID_AREA_FORMAT = 2;
+	public static final int ANDROID_STRING_ARRAY_FORMAT = 2;
 
 	/* translation type options */
 	private Text sourceName;
@@ -173,7 +173,7 @@ public class ImportPropertiesWizardPage extends WizardPage {
 
 		startingRow = new Text(parent, SWT.BORDER);
 		startingRow.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		startingRow.setText(String.valueOf(Importator.DEFAULT_START_ROW));
+		startingRow.setText(String.valueOf(Importator.DEFAULT_STARTING_ROW));
 		startingRow.addListener(SWT.Verify, new Listener() {
 			@Override
 			public void handleEvent(Event e) {
@@ -202,7 +202,7 @@ public class ImportPropertiesWizardPage extends WizardPage {
 
 		valueColumn = new Text(parent, SWT.BORDER);
 		valueColumn.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		valueColumn.setText(String.valueOf(Importator.DEFAULT_VALUE_INDEX));
+		valueColumn.setText(String.valueOf(Importator.DEFAULT_VALUE_COLUMN));
 		valueColumn.addListener(SWT.Verify, new Listener() {
 			@Override
 			public void handleEvent(Event e) {
@@ -271,7 +271,7 @@ public class ImportPropertiesWizardPage extends WizardPage {
 		stringFormatButton.setSelection(true);
 
 		areaFormatButton = new Button(parent, SWT.RADIO);
-		areaFormatButton.setText("<string-area>");
+		areaFormatButton.setText("<string-array>");
 	}
 
 	private void createDestinationComponent(Composite parent) {
@@ -370,7 +370,7 @@ public class ImportPropertiesWizardPage extends WizardPage {
 		if (stringFormatButton.getSelection()) {
 			return ANDROID_STRING_FORMAT;
 		}
-		return ANDROID_AREA_FORMAT;
+		return ANDROID_STRING_ARRAY_FORMAT;
 	}
 
 	public String getSheetName() {
