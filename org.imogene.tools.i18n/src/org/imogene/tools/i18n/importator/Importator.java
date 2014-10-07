@@ -2,6 +2,8 @@ package org.imogene.tools.i18n.importator;
 
 import java.io.File;
 
+import org.odftoolkit.simple.table.Table;
+
 public interface Importator {
 
 	public static final int DEFAULT_STARTING_ROW = 0;
@@ -10,12 +12,11 @@ public interface Importator {
 	/**
 	 * Handle the specified sheet
 	 * 
-	 * @param parent
-	 * @param sheet
-	 * @param fileName
-	 * @param startRow
-	 * @param valueColumn
+	 * @param table
+	 * @param startingRow
+	 * @param valueColumnIndex
+	 * @param destinationFile
 	 */
-	public void importProperties(File destinationFile);
+	public void importProperties(Table table, int startingRow, int valueColumnIndex, File destinationFile);
 
 }

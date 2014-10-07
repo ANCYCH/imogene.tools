@@ -29,37 +29,22 @@ public class AndroidImportator implements Importator {
 
 	private final HashMap<String, Element> elementsMap = new HashMap<String, Element>();
 
-	private Table sheet;
-	private int startingRow = Importator.DEFAULT_STARTING_ROW;
-	private int valueColumn = Importator.DEFAULT_VALUE_COLUMN;
-	private boolean array;
+	private final boolean array;
 
-	public void setSheet(Table sheet) {
-		this.sheet = sheet;
-	}
-
-	public void setStartingRow(int startingRow) {
-		this.startingRow = startingRow;
-	}
-
-	public void setValueColumn(int valueColumn) {
-		this.valueColumn = valueColumn;
-	}
-
-	public void setArray(boolean array) {
+	public AndroidImportator(boolean array) {
 		this.array = array;
 	}
 
 	@Override
-	public void importProperties(File destinationFile) {
+	public void importProperties(Table table, int startingRow, int valueColumnIndex, File destFile) {
 		try {
 			Document dom = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			/* create a ROOT element */
 			Element root = dom.createElement("resources");
 			dom.appendChild(root);
 			/* create the DOM */
-			parseTable(dom, root);
-			writeDomToFile(destinationFile, dom);
+			parseTable(table, startingRow, valueColumnIndex, dom, root);
+			writeDomToFile(destFile, dom);
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
@@ -72,13 +57,13 @@ public class AndroidImportator implements Importator {
 	 * @param rootthe root element
 	 * @param sheet the spreadsheet
 	 */
-	private void parseTable(Document dom, Element root) {
+	private void parseTable(Table table, int startingRow, int valueColumnIndex, Document dom, Element root) {
 		elementsMap.clear();
 		int currentRow = startingRow;
 		boolean stop = false;
 		while (!stop) {
-			Cell keyCell = sheet.getCellByPosition(0, currentRow);
-			Cell valueCell = sheet.getCellByPosition(valueColumn, currentRow);
+			Cell keyCell = table.getCellByPosition(0, currentRow);
+			Cell valueCell = table.getCellByPosition(valueColumnIndex, currentRow);
 			String key = keyCell.getStringValue();
 			String value = cleanString(valueCell.getStringValue());
 			if (key != null && !key.equals("")) {

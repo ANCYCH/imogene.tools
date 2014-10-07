@@ -42,23 +42,26 @@ public class ImportPropertiesWizardPage extends WizardPage {
 
 	public static final int ANDROID_STRING_ARRAY_FORMAT = 2;
 
-	/* translation type options */
+	// Source group
 	private Text sourceName;
-	private Button androidButton;
-	private Button propertiesButton;
+	private Button selectAllSheets;
+	private Composite sheetListGroup;
+	private Combo sheetList;
 	private Composite defineValuesGroup;
 	private Button defineValuesButton;
 	private Text startingRow;
 	private Text valueColumn;
 
-	/* android format group */
+	// Destination group
+	private Button androidButton;
+	private Button propertiesButton;
+	private Composite fileNameGroup;
+	private Text fileName;
+
+	// Android format group
 	private Composite androidFormatGroup;
 	private Button stringFormatButton;
 	private Button areaFormatButton;
-
-	/* output option */
-	private Combo sheetList;
-	private Text fileName;
 
 	public ImportPropertiesWizardPage() {
 		super(NAME);
@@ -76,6 +79,18 @@ public class ImportPropertiesWizardPage extends WizardPage {
 		createDestinationGroup(main);
 
 		setControl(main);
+
+		stringFormatButton.setSelection(true);
+
+		selectAllSheets.setSelection(true);
+		sheetListGroup.setEnabled(false);
+		fileNameGroup.setEnabled(false);
+
+		defineValuesButton.setSelection(false);
+		defineValuesGroup.setEnabled(false);
+
+		androidButton.setSelection(true);
+		androidFormatGroup.setEnabled(true);
 	}
 
 	private void createSourceGroup(Composite parent) {
@@ -89,10 +104,7 @@ public class ImportPropertiesWizardPage extends WizardPage {
 		layout.setLayout(new GridLayout(3, false));
 		createSourceSelectionComponent(layout);
 
-		final Composite layout2 = new Composite(group, SWT.NONE);
-		layout2.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		layout2.setLayout(new GridLayout(2, false));
-		createSourceSheetSelectionComponent(layout2);
+		createSourceSheetSelectionComponent(group);
 
 		createStartValuesComponent(group);
 	}
@@ -133,6 +145,26 @@ public class ImportPropertiesWizardPage extends WizardPage {
 	}
 
 	private void createSourceSheetSelectionComponent(Composite parent) {
+		selectAllSheets = new Button(parent, SWT.CHECK);
+		selectAllSheets.setText("Export all sheets");
+		selectAllSheets.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				sheetListGroup.setEnabled(!selectAllSheets.getSelection());
+				fileNameGroup.setEnabled(!selectAllSheets.getSelection());
+				validatePage();
+			}
+		});
+
+		sheetListGroup = new EnhancedComposite(parent, SWT.NONE);
+		sheetListGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		sheetListGroup.setLayout(new GridLayout(2, false));
+
+		createSheetListComponent(sheetListGroup);
+
+	}
+
+	private void createSheetListComponent(Composite parent) {
 		Label comboLabel = new Label(parent, SWT.NONE);
 		comboLabel.setText("Sheet:");
 
@@ -141,6 +173,10 @@ public class ImportPropertiesWizardPage extends WizardPage {
 		sheetList.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
+				int selectedIndex = sheetList.getSelectionIndex();
+				if (selectedIndex > -1) {
+					fileName.setText(sheetList.getItem(selectedIndex));
+				}
 				validatePage();
 			}
 		});
@@ -149,7 +185,6 @@ public class ImportPropertiesWizardPage extends WizardPage {
 	private void createStartValuesComponent(Composite parent) {
 		defineValuesButton = new Button(parent, SWT.CHECK);
 		defineValuesButton.setText("Define default values");
-		defineValuesButton.setSelection(false);
 		defineValuesButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -163,8 +198,6 @@ public class ImportPropertiesWizardPage extends WizardPage {
 
 		createStartRowComponent(defineValuesGroup);
 		createValueColumnComponent(defineValuesGroup);
-
-		defineValuesGroup.setEnabled(false);
 	}
 
 	private void createStartRowComponent(Composite parent) {
@@ -232,16 +265,15 @@ public class ImportPropertiesWizardPage extends WizardPage {
 		group.setText("Destination configuration");
 		createDestinationTypeComponent(group);
 
-		Composite layout = new Composite(group, SWT.NONE);
-		layout.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
-		layout.setLayout(new GridLayout(2, false));
-		createDestinationComponent(layout);
+		fileNameGroup = new EnhancedComposite(group, SWT.NONE);
+		fileNameGroup.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		fileNameGroup.setLayout(new GridLayout(2, false));
+		createDestinationComponent(fileNameGroup);
 	}
 
 	private void createDestinationTypeComponent(Composite parent) {
 		androidButton = new Button(parent, SWT.RADIO);
 		androidButton.setText("Android resource");
-		androidButton.setSelection(true);
 		androidButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -268,7 +300,6 @@ public class ImportPropertiesWizardPage extends WizardPage {
 
 		stringFormatButton = new Button(parent, SWT.RADIO);
 		stringFormatButton.setText("<string>");
-		stringFormatButton.setSelection(true);
 
 		areaFormatButton = new Button(parent, SWT.RADIO);
 		areaFormatButton.setText("<string-array>");
@@ -301,6 +332,15 @@ public class ImportPropertiesWizardPage extends WizardPage {
 			return;
 		}
 
+		if (!selectAllSheets.getSelection()) {
+			int sheetIndex = sheetList.getSelectionIndex();
+			if (sheetIndex == -1) {
+				setErrorMessage("No sheet selected.");
+				setPageComplete(false);
+				return;
+			}
+		}
+
 		if (defineValuesButton.getSelection()) {
 			String startingRowString = startingRow.getText();
 			if (startingRowString == null || startingRowString.length() < 1) {
@@ -316,19 +356,15 @@ public class ImportPropertiesWizardPage extends WizardPage {
 			}
 		}
 
-		int sheetIndex = sheetList.getSelectionIndex();
-		if (sheetIndex == -1) {
-			setErrorMessage("No sheet selected.");
-			setPageComplete(false);
-			return;
+		if (!selectAllSheets.getSelection()) {
+			String fileNameString = fileName.getText();
+			if (fileNameString == null || fileNameString.length() < 1) {
+				setErrorMessage("Destination file name is invalid.");
+				setPageComplete(false);
+				return;
+			}
 		}
 
-		String fileNameString = fileName.getText();
-		if (fileNameString == null || fileNameString.length() < 1) {
-			setErrorMessage("Destination file name is invalid.");
-			setPageComplete(false);
-			return;
-		}
 		setErrorMessage(null);
 		setPageComplete(true);
 	}
@@ -395,6 +431,10 @@ public class ImportPropertiesWizardPage extends WizardPage {
 
 	public int getValueColumn() {
 		return Integer.valueOf(valueColumn.getText());
+	}
+
+	public boolean isSelectAllSheetsEnabled() {
+		return selectAllSheets.getSelection();
 	}
 
 }

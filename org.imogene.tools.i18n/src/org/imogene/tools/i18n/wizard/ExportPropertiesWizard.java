@@ -1,12 +1,17 @@
 package org.imogene.tools.i18n.wizard;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.imogene.tools.i18n.extractor.Extractor;
-import org.imogene.tools.i18n.jobs.ExportJob;
+import org.imogene.tools.i18n.utils.SpreadsheetHelper;
 
 public class ExportPropertiesWizard extends Wizard {
 
@@ -28,12 +33,23 @@ public class ExportPropertiesWizard extends Wizard {
 
 	@Override
 	public boolean performFinish() {
-		IFile selectedFile = (IFile) structureSelection.getFirstElement();
-		File file = new File(defaultPage.getPath());
-		boolean useDefaultSheetName = defaultPage.useDefaultSheetName();
-		String sheetName = useDefaultSheetName ? selectedFile.getName() : defaultPage.getSheetName();
+		final IFile selectedFile = (IFile) structureSelection.getFirstElement();
+		final File file = new File(defaultPage.getPath());
+		final String sheetName = defaultPage.useDefaultSheetName() ? selectedFile.getName() : defaultPage
+				.getSheetName();
 
-		ExportJob job = new ExportJob(selectedFile, file, sheetName, extractor);
+		Job job = new Job("Export Job") {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				monitor.beginTask("Extracting properties", 100);
+				Properties p = extractor.extract(selectedFile);
+				monitor.worked(50);
+				SpreadsheetHelper.createOutput(file, sheetName, p);
+				monitor.worked(50);
+				return Status.OK_STATUS;
+			}
+		};
 		job.setUser(true);
 		job.schedule();
 		return true;
